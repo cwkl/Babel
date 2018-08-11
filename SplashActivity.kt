@@ -85,6 +85,7 @@ class SplashActivity : AppCompatActivity() {
                 run {
                     Thread.sleep(1000)
                     startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
                 }
             }.start()
         }
