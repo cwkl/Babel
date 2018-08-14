@@ -31,7 +31,7 @@ class LoginActivity : AppCompatActivity() {
 
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
         mFirebaseAuth = FirebaseAuth.getInstance()
-        mFirebaseAuth?.signOut()
+//        mFirebaseAuth?.signOut()
 
         val statusbarColor = mFirebaseRemoteConfig?.getString("statusbarcolor")
 

@@ -1,5 +1,7 @@
 package com.example.junhyeokkwon.babel.fragment
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -20,10 +22,11 @@ import android.widget.LinearLayout
 import com.example.junhyeokkwon.babel.R.id.parent
 import android.widget.TextView
 import android.support.v7.widget.DividerItemDecoration
-
-
-
-
+import com.example.junhyeokkwon.babel.chat.ChatActivity
+import android.support.v4.content.ContextCompat.startActivity
+import android.app.ActivityOptions
+import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
 
 
 class FriendsFragment : Fragment() {
@@ -46,11 +49,16 @@ class FriendsFragment : Fragment() {
 
         init {
             userModels = ArrayList()
+            var myUid = FirebaseAuth.getInstance().currentUser?.uid
             FirebaseDatabase.getInstance().getReference("users").addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     (userModels as ArrayList<UserModel>).clear()
                     for (snapshot in dataSnapshot.children) {
-                        (userModels as ArrayList<UserModel>).add(snapshot.getValue(UserModel::class.java)!!)
+                        val userModel = snapshot.getValue(UserModel::class.java)
+                        if (userModel?.uid.equals(myUid)){
+                            continue
+                        }
+                        (userModels as ArrayList<UserModel>).add(userModel!!)
                     }
                     notifyDataSetChanged()
 
@@ -81,8 +89,16 @@ class FriendsFragment : Fragment() {
             return userModels!!.size
         }
 
+        @SuppressLint("ObsoleteSdkInt")
         override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
             (p0 as CustomViewHolder).textView.text = userModels?.get(p1)?.userName
+
+            p0.itemView.setOnClickListener(View.OnClickListener { view ->
+                val intent = Intent(view.context, ChatActivity::class.java)
+                intent.putExtra("destinationUid", userModels?.get(p1)?.uid)
+                val activityOptions = ActivityOptions.makeCustomAnimation(view.context, R.anim.fromright, R.anim.toleft)
+                startActivity(view.context, intent, activityOptions.toBundle())
+            })
         }
 
     }

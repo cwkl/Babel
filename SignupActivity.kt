@@ -61,14 +61,16 @@ class SignupActivity : AppCompatActivity() {
                         .addOnCompleteListener(this, OnCompleteListener<AuthResult> { task ->
                             if (task.isSuccessful) {
                                 val userModel = UserModel()
+                                val uid = task.result.user.uid
                                 userModel.userName = edtNickname
                                 userModel.userEmail = edtEmail
                                 userModel.userPassword = edtPassword
+                                userModel.uid = FirebaseAuth.getInstance().currentUser?.uid
 
-                                val uid = task.result.user.uid
+
 
                                 FirebaseDatabase.getInstance()
-                                        .getReference("users").child(uid)
+                                        .reference.child("users").child(uid)
                                         .setValue(userModel)
                                         .addOnSuccessListener {
                                             this.finish()
