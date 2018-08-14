@@ -51,43 +51,37 @@ class SignupActivity : AppCompatActivity() {
             true
         }
 
-        signupactivity_btnsignup.setOnTouchListener { _, motionEvent ->
-            when (motionEvent.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    signupactivity_btnsignup.background = ContextCompat.getDrawable(this, R.drawable.loginactivity_buttonclicked_background)
-                    signupactivity_btnsignup.setTextColor(Color.parseColor("#ffffff"))
-                }
-                MotionEvent.ACTION_UP -> {
-                    signupactivity_btnsignup.background = ContextCompat.getDrawable(this, R.drawable.loginactivity_button_background)
-                    signupactivity_btnsignup.setTextColor(Color.parseColor("#000000"))
-                    val edtNickname = signupactivity_edtnickname.text.toString()
-                    val edtEmail = signupactivity_edtemail.text.toString()
-                    val edtPassword = signupactivity_edtpassword.text.toString()
-                    if (edtNickname.isNotEmpty() && edtEmail.isNotEmpty() && edtPassword.isNotEmpty()) {
-                        FirebaseAuth.getInstance()
-                                .createUserWithEmailAndPassword(edtEmail, edtPassword)
-                                .addOnCompleteListener(this, OnCompleteListener<AuthResult> { task ->
-                                    if (task.isSuccessful) {
-                                        val userModel = UserModel()
-                                        userModel.userName = edtNickname
-                                        userModel.userEmail = edtEmail
-                                        userModel.userPassword = edtPassword
+        signupactivity_btnsignup.setOnClickListener {
+            val edtNickname = signupactivity_edtnickname.text.toString()
+            val edtEmail = signupactivity_edtemail.text.toString()
+            val edtPassword = signupactivity_edtpassword.text.toString()
+            if (edtNickname.isNotEmpty() && edtEmail.isNotEmpty() && edtPassword.isNotEmpty()) {
+                FirebaseAuth.getInstance()
+                        .createUserWithEmailAndPassword(edtEmail, edtPassword)
+                        .addOnCompleteListener(this, OnCompleteListener<AuthResult> { task ->
+                            if (task.isSuccessful) {
+                                val userModel = UserModel()
+                                userModel.userName = edtNickname
+                                userModel.userEmail = edtEmail
+                                userModel.userPassword = edtPassword
 
-                                        val uid = task.result.user.uid
+                                val uid = task.result.user.uid
 
-                                        FirebaseDatabase.getInstance().getReference("users").child(uid).setValue(userModel)
+                                FirebaseDatabase.getInstance()
+                                        .getReference("users").child(uid)
+                                        .setValue(userModel)
+                                        .addOnSuccessListener {
+                                            this.finish()
+                                        }
 
-                                        Toast.makeText(this, "Sign up Success.", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        Toast.makeText(this, "Sign up Failed.", Toast.LENGTH_SHORT).show()
-                                    }
-                                })
-                    }else{
-                        Toast.makeText(this, "error", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                                Toast.makeText(this, "Sign up Success.", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(this, "Sign up Failed.", Toast.LENGTH_SHORT).show()
+                            }
+                        })
+            }else{
+                Toast.makeText(this, "error", Toast.LENGTH_SHORT).show()
             }
-            true
         }
     }
 }

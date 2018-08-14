@@ -51,36 +51,13 @@ class LoginActivity : AppCompatActivity() {
             true
         }
 
-        loginactivity_btnlogin.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
-            when (motionEvent.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    loginactivity_btnlogin.background = ContextCompat.getDrawable(this, R.drawable.loginactivity_buttonclicked_background)
-                    loginactivity_btnlogin.setTextColor(Color.parseColor("#ffffff"))
-                }
-                MotionEvent.ACTION_UP -> {
-                    loginactivity_btnlogin.background = ContextCompat.getDrawable(this, R.drawable.loginactivity_button_background)
-                    loginactivity_btnlogin.setTextColor(Color.parseColor("#000000"))
+        loginactivity_btnlogin.setOnClickListener {
+            loginEvent()
+        }
 
-                    loginEvent()
-                }
-            }
-            true
-        })
-
-        loginactivity_btncreateaccount.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
-            when (motionEvent.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    loginactivity_btncreateaccount.background = ContextCompat.getDrawable(this, R.drawable.loginactivity_buttonclicked_background)
-                    loginactivity_btncreateaccount.setTextColor(Color.parseColor("#ffffff"))
-                }
-                MotionEvent.ACTION_UP -> {
-                    loginactivity_btncreateaccount.background = ContextCompat.getDrawable(this, R.drawable.loginactivity_button_background)
-                    loginactivity_btncreateaccount.setTextColor(Color.parseColor("#000000"))
-                    startActivity(Intent(this, SignupActivity::class.java))
-                }
-            }
-            true
-        })
+        loginactivity_btncreateaccount.setOnClickListener {
+            startActivity(Intent(this, SignupActivity::class.java))
+        }
 
         mFirebaseAuthStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
 
