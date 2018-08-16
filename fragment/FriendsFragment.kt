@@ -16,16 +16,12 @@ import kotlin.collections.ArrayList
 import com.google.firebase.database.DatabaseError
 import com.example.junhyeokkwon.babel.model.UserModel
 import com.google.firebase.database.DataSnapshot
-import android.text.method.TextKeyListener.clear
 import android.widget.ImageView
-import android.widget.LinearLayout
-import com.example.junhyeokkwon.babel.R.id.parent
 import android.widget.TextView
 import android.support.v7.widget.DividerItemDecoration
 import com.example.junhyeokkwon.babel.chat.ChatActivity
 import android.support.v4.content.ContextCompat.startActivity
 import android.app.ActivityOptions
-import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -49,7 +45,7 @@ class FriendsFragment : Fragment() {
 
         init {
             userModels = ArrayList()
-            var myUid = FirebaseAuth.getInstance().currentUser?.uid
+            val myUid = FirebaseAuth.getInstance().currentUser?.uid
             FirebaseDatabase.getInstance().getReference("users").addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     (userModels as ArrayList<UserModel>).clear()
@@ -81,7 +77,7 @@ class FriendsFragment : Fragment() {
 
         private inner class CustomViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             var imageView: ImageView = view.findViewById<View>(R.id.frienditem_imageview) as ImageView
-            var textView: TextView = view.findViewById<View>(R.id.frienditem_textview) as TextView
+            var textView_name: TextView = view.findViewById<View>(R.id.frienditem_textview_name) as TextView
 
         }
 
@@ -91,7 +87,7 @@ class FriendsFragment : Fragment() {
 
         @SuppressLint("ObsoleteSdkInt")
         override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
-            (p0 as CustomViewHolder).textView.text = userModels?.get(p1)?.userName
+            (p0 as CustomViewHolder).textView_name.text = userModels?.get(p1)?.userName
 
             p0.itemView.setOnClickListener(View.OnClickListener { view ->
                 val intent = Intent(view.context, ChatActivity::class.java)
