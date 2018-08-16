@@ -10,4 +10,12 @@ data class ChatModel(var users: HashMap<String, Boolean> = hashMapOf(),
 
 }
 
-//data class ChatModel(var uid: String? = null, var destinationUid: String? = null )
+//data class ChatModel(var users: Map<String, Boolean> = HashMap(), var comments: Map<String, Comment> = HashMap()) {
+//
+//    class Comment {
+//
+//        var uid: String? = null
+//        var message: String? = null
+//    }
+//
+//}

@@ -24,6 +24,8 @@ import android.widget.TextView
 import com.example.junhyeokkwon.babel.model.UserModel
 
 
+
+
 class ChatActivity : AppCompatActivity() {
     private var mFirebaseRemoteConfig: FirebaseRemoteConfig? = null
     private var destinationUid: String? = null

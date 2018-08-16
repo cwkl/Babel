@@ -10,6 +10,8 @@ import android.support.design.widget.NavigationView
 import android.view.MenuItem
 import com.example.junhyeokkwon.babel.fragment.ChatListFragment
 import com.example.junhyeokkwon.babel.fragment.FriendsFragment
+import com.example.junhyeokkwon.babel.fragment.ProfileFragment
+import com.example.junhyeokkwon.babel.fragment.SettingFragment
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -45,9 +47,15 @@ class MainActivity : AppCompatActivity() {
                     return true
                     }
                     // 프로필화면을 불러들임
-//                    R.id.action_profile ->
+                    R.id.action_profile -> {
+                        supportFragmentManager.beginTransaction().replace(R.id.mainactivity_framelayout, ProfileFragment()).commit()
+                        return true
+                    }
                     // 세팅화면을 불러들임
-//                    R.id.action_setting ->
+                    R.id.action_setting -> {
+                        supportFragmentManager.beginTransaction().replace(R.id.mainactivity_framelayout, SettingFragment()).commit()
+                        return true
+                    }
                 }
                 return false
             }
