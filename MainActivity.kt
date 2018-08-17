@@ -12,8 +12,13 @@ import com.example.junhyeokkwon.babel.fragment.ChatListFragment
 import com.example.junhyeokkwon.babel.fragment.FriendsFragment
 import com.example.junhyeokkwon.babel.fragment.ProfileFragment
 import com.example.junhyeokkwon.babel.fragment.SettingFragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import kotlinx.android.synthetic.main.activity_main.*
+
+
 
 class MainActivity : AppCompatActivity() {
     private var mFirebaseRemoteConfig: FirebaseRemoteConfig? = null
@@ -61,5 +66,15 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+        passPushTokenServer()
+    }
+    fun passPushTokenServer(){
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        val token = FirebaseInstanceId.getInstance().token
+
+        val map : HashMap<String, Any> = HashMap()
+        map["pushToken"] = token!!
+        FirebaseDatabase.getInstance().reference.child("users").child(uid!!).updateChildren(map)
+
     }
 }

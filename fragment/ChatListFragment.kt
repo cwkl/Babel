@@ -22,6 +22,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -31,6 +32,7 @@ class ChatListFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view: View = inflater.inflate(R.layout.fragment_chatlist, container, false)
         val recyclerView = view.findViewById(R.id.chatfragment_recyclerview) as RecyclerView
+
         recyclerView.adapter = ChatRecyclerViewAdapter()
         recyclerView.layoutManager = LinearLayoutManager(inflater.context)
         // 리사이클러뷰 구분선
@@ -41,11 +43,12 @@ class ChatListFragment : Fragment() {
 
     class ChatRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private var chatModels = ArrayList<ChatModel>()
+        private var destinationUsers = ArrayList<String>()
         private var uid: String? = null
 
         init {
             uid = FirebaseAuth.getInstance().currentUser?.uid
-            FirebaseDatabase.getInstance().reference.child("chatrooms").orderByChild("user/$uid").addListenerForSingleValueEvent(object : ValueEventListener {
+            FirebaseDatabase.getInstance().reference.child("chatrooms").orderByChild("users/$uid").equalTo(true).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(p0: DataSnapshot) {
                     chatModels.clear()
                     for (item in p0.children) {
@@ -76,6 +79,7 @@ class ChatListFragment : Fragment() {
             for (user in chatModels[p1].users.keys) {
                 if (user != uid) {
                     destinationUid = user
+                    destinationUsers.add(destinationUid)
                 }
             }
             FirebaseDatabase.getInstance().reference.child("users").child(destinationUid!!).addListenerForSingleValueEvent(object : ValueEventListener {
@@ -84,10 +88,19 @@ class ChatListFragment : Fragment() {
 
                     (p0 as CustomViewHolder).textView_title.text = userModel?.userName
 
+                    // 마지막 메세지 가져오기
                     val commentMap: TreeMap<String, ChatModel.Comment> = TreeMap(Collections.reverseOrder())
                     commentMap.putAll(chatModels[p1].comments)
                     val lastMessageKey = commentMap.keys.toTypedArray()[0]
                     p0.textView_lastMessage.text = chatModels[p1].comments[lastMessageKey]?.message
+
+                    // 마지막 메세지 시간 가져오기
+                    val simpleDateFormat = SimpleDateFormat("yyyy.MM.dd hh:mm")
+                    simpleDateFormat.timeZone = TimeZone.getTimeZone("Asia/Seoul")
+                    val unixTime = chatModels[p1].comments[lastMessageKey]?.timeStamp as Long
+                    val date = Date(unixTime)
+                    p0.textView_timeStamp.text = simpleDateFormat.format(date)
+
                 }
 
                 override fun onCancelled(p0: DatabaseError) {
@@ -96,13 +109,12 @@ class ChatListFragment : Fragment() {
 
             })
 
-//            p0.itemView.setOnClickListener(View.OnClickListener { view ->
-//                val intent = Intent(view.context, ChatActivity::class.java)
-//                intent.putExtra("destinationUid", userModels?.get(p1)?.uid)
-//                val activityOptions = ActivityOptions.makeCustomAnimation(view.context, R.anim.fromright, R.anim.toleft)
-//                ContextCompat.startActivity(view.context, intent, activityOptions.toBundle())
-//            })
-
+            p0.itemView.setOnClickListener(View.OnClickListener { view ->
+                val intent = Intent(view.context, ChatActivity::class.java)
+                intent.putExtra("destinationUid", destinationUsers[p1])
+                val activityOptions = ActivityOptions.makeCustomAnimation(view.context, R.anim.fromright, R.anim.toleft)
+                ContextCompat.startActivity(view.context, intent, activityOptions.toBundle())
+            })
 
         }
 
@@ -110,6 +122,7 @@ class ChatListFragment : Fragment() {
             var imageView = view.findViewById(R.id.chatlistitem_imageview) as ImageView
             var textView_title = view.findViewById(R.id.chatlistitem_textview_title) as TextView
             var textView_lastMessage = view.findViewById(R.id.chatlistitem_textview_lastmessage) as TextView
+            var textView_timeStamp = view.findViewById(R.id.chatlistitem_textview_timestamp) as TextView
         }
     }
 }
