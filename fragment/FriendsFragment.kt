@@ -70,7 +70,7 @@ class FriendsFragment : Fragment() {
 
 
         override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RecyclerView.ViewHolder {
-            val view = LayoutInflater.from(p0.context).inflate(R.layout.item_friend, p0, false)
+            val view = LayoutInflater.from(p0.context).inflate(R.layout.item_friends, p0, false)
 
             return CustomViewHolder(view)
         }
@@ -78,6 +78,7 @@ class FriendsFragment : Fragment() {
         private inner class CustomViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             var imageView: ImageView = view.findViewById<View>(R.id.frienditem_imageview) as ImageView
             var textView_name: TextView = view.findViewById<View>(R.id.frienditem_textview_name) as TextView
+            var textView_statusComment = view.findViewById(R.id.frienditem_textview_statuscomment) as TextView
 
         }
 
@@ -95,6 +96,7 @@ class FriendsFragment : Fragment() {
                 val activityOptions = ActivityOptions.makeCustomAnimation(view.context, R.anim.fromright, R.anim.toleft)
                 startActivity(view.context, intent, activityOptions.toBundle())
             })
+            p0.textView_statusComment.text = userModels?.get(p1)?.statusComment
         }
 
     }

@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task
 import android.support.annotation.NonNull
 import android.R.attr.password
 import com.example.junhyeokkwon.babel.model.UserModel
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 
 
@@ -66,6 +67,9 @@ class SignupActivity : AppCompatActivity() {
                                 userModel.userEmail = edtEmail
                                 userModel.userPassword = edtPassword
                                 userModel.uid = FirebaseAuth.getInstance().currentUser?.uid
+
+                                var userProfileChangeRequest = UserProfileChangeRequest.Builder().setDisplayName(edtNickname).build()
+                                task.result.user.updateProfile(userProfileChangeRequest)
 
 
 

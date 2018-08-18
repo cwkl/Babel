@@ -103,9 +103,13 @@ class ChatActivity : AppCompatActivity() {
     fun sendGcm(){
         val gson = Gson()
         val notificationModel = NotificationModel()
+        val userName = FirebaseAuth.getInstance().currentUser?.displayName
+
         notificationModel.to = destinaitonUserModel?.pushToken
-        notificationModel.notification.title = "send user"
+        notificationModel.notification.title = userName
         notificationModel.notification.text = chatactivity_edittext.text.toString()
+        notificationModel.data.title = userName
+        notificationModel.data.text = chatactivity_edittext.text.toString()
 
         // 바디만들기
         val requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf8"), gson.toJson(notificationModel))
