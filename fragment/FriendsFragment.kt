@@ -97,6 +97,10 @@ class FriendsFragment : Fragment() {
                 startActivity(view.context, intent, activityOptions.toBundle())
             })
             p0.textView_statusComment.text = userModels?.get(p1)?.statusComment
+            if (userModels?.get(p1)?.statusComment != null){
+                p0.textView_statusComment.setBackgroundResource(R.drawable.statusmessage_background)
+
+            }
         }
 
     }

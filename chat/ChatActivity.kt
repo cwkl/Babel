@@ -1,6 +1,5 @@
 package com.example.junhyeokkwon.babel.chat
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -13,22 +12,22 @@ import com.example.junhyeokkwon.babel.model.ChatModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import kotlinx.android.synthetic.main.activity_chat.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.junhyeokkwon.babel.model.NotificationModel
 import com.example.junhyeokkwon.babel.model.UserModel
-import com.google.firebase.database.ServerValue
+import com.google.firebase.database.*
 import java.text.SimpleDateFormat
 import java.util.*
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
 import okhttp3.*
 import java.io.IOException
+import kotlin.collections.HashMap
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.ValueEventListener
 
 
 class ChatActivity : AppCompatActivity() {
@@ -38,6 +37,8 @@ class ChatActivity : AppCompatActivity() {
     private var chatRoomUid: String? = null
     private var simpleDateFormat = SimpleDateFormat("yyyy.MM.dd hh:mm")
     private var destinaitonUserModel: UserModel? = null
+    private var databaseReference : DatabaseReference? = null
+    private var valueEventListener: ValueEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,8 +100,9 @@ class ChatActivity : AppCompatActivity() {
         }
         checkChatRoom()
     }
+
     // 구글클라우스메세지 보내기
-    fun sendGcm(){
+    fun sendGcm() {
         val gson = Gson()
         val notificationModel = NotificationModel()
         val userName = FirebaseAuth.getInstance().currentUser?.displayName
@@ -124,7 +126,7 @@ class ChatActivity : AppCompatActivity() {
 
         // okhttp로 요청 보내기
         val okHttpClient = OkHttpClient()
-        okHttpClient.newCall(request).enqueue(object : Callback{
+        okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call?, e: IOException?) {
             }
 
@@ -134,7 +136,6 @@ class ChatActivity : AppCompatActivity() {
         })
 
     }
-
 
 
     //미리 개설된 방이있는지 체크
@@ -178,18 +179,28 @@ class ChatActivity : AppCompatActivity() {
         }
 
         fun getMessageList() {
-            FirebaseDatabase.getInstance().reference.child("chatrooms").child(chatRoomUid!!).child("comments").addValueEventListener(object : ValueEventListener {
+            databaseReference = FirebaseDatabase.getInstance().reference.child("chatrooms").child(chatRoomUid!!).child("comments")
+            valueEventListener = (databaseReference as DatabaseReference).addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     (comments as ArrayList<ChatModel.Comment>).clear()
+                    val readUsersMap: HashMap<String, Any> = HashMap()
 
                     for (item in dataSnapshot.children) {
-                        (comments as ArrayList<ChatModel.Comment>).add(item.getValue(ChatModel.Comment::class.java)!!)
+                        // 메세지 읽음 확
+                        val key: String = item.key
+                        val comment = item.getValue(ChatModel.Comment::class.java)!!
+                        comment.readUsers[uid!!] = true
+                        readUsersMap[key] = comment
+
+                        (comments as ArrayList<ChatModel.Comment>).add(comment)
 
                     }
-                    notifyDataSetChanged()
+                    FirebaseDatabase.getInstance().reference.child("chatrooms").child(chatRoomUid).child("comments").updateChildren(readUsersMap).addOnCompleteListener {
+                        notifyDataSetChanged()
 
-                    // 입력후 제일 아래로 내려주기
-                    chatactivity_recyclerview.scrollToPosition(comments?.size!!.minus(1))
+                        // 입력후 제일 아래로 내려주기
+                        chatactivity_recyclerview.scrollToPosition(comments?.size!!.minus(1))
+                    }
 
 
                 }
@@ -246,6 +257,7 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
 //        super.onBackPressed()
+        databaseReference?.removeEventListener(valueEventListener)
         finish()
         overridePendingTransition(R.anim.fromleft, R.anim.toright)
     }
